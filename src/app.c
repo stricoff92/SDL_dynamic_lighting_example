@@ -15,6 +15,10 @@
 
 #define WINDOW_TITLE "SDL Lighting Test :3"
 #define free_and_null(ptr) if(ptr) { free(ptr); ptr = NULL; }
+#define free_texture_and_null(ptr) if(ptr) { SDL_DestroyTexture(ptr); ptr = NULL; }
+
+
+#define SCENE_TTL 1000
 
 static SDL_Window *w = NULL;
 static SDL_Renderer *r = NULL;
@@ -27,16 +31,20 @@ static inline u32 fastrand(void) {
     return fast_rand_state;
 }
 
+static inline void reset_render_state(void) {
+    SDL_SetRenderTarget(r, NULL);
+    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////
 ///// scenes
 
 
-/* SCENE 0
+/* SCENE 0 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 */
 
 static SDL_FPoint *scene_0_points = 0;
-static const u32 scene_0_points_count = 10000;
-static u32 scene_1_seed = 0;
+static const u32 scene_0_points_count = 3500;
 void draw_scene_0(void) {
     SDL_SetRenderDrawColor(r, 0, 0, 0, 255);
     SDL_RenderClear(r);
@@ -50,8 +58,115 @@ void draw_scene_0(void) {
     SDL_RenderPresent(r);
 }
 
-void draw_scene_1(void) {
+/* SCENE 1    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+*/
 
+static SDL_Texture* scene_1_brick_wall = NULL;
+static const int
+    scene_1_brick_wall_w = 500,
+    scene_1_brick_wall_h = 300;
+bool SETUP_create_scene_1_brick_wall(void) {
+    // Return true if successful.
+    scene_1_brick_wall = SDL_CreateTexture(
+        r,
+        SDL_PIXELFORMAT_RGBA8888,
+        SDL_TEXTUREACCESS_TARGET,
+        scene_1_brick_wall_w,scene_1_brick_wall_h);
+    if(!scene_1_brick_wall) {
+        fprintf(stderr, "%s failed to create texture %s", __func__, SDL_GetError());
+        return false;
+    }
+    SDL_SetRenderTarget(r, scene_1_brick_wall);
+    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_NONE);
+
+    // Create a brick-like pattern (AI generated code).
+    for (int y = 0; y <scene_1_brick_wall_h; y += 40) {
+        for (int x = 0; x < scene_1_brick_wall_w; x += 60) {
+            // Alternate brick pattern
+            int offsetX = (y / 40) % 2 == 0 ? 0 : 30;
+            // Brick color
+            SDL_SetRenderDrawColor(r, 120 + (x + y) % 40, 80 + (x * y) % 30, 60, 255);
+            SDL_Rect brick = {x + offsetX, y, 55, 35};
+            SDL_RenderFillRect(r, &brick);
+            // Mortar lines
+            SDL_SetRenderDrawColor(r, 200, 200, 200, 255);
+            SDL_Rect mortarH = {x + offsetX - 2, y + 35, 59, 5};
+            SDL_Rect mortarV = {x + offsetX + 55, y, 5, 40};
+            SDL_RenderFillRect(r, &mortarH);
+            SDL_RenderFillRect(r, &mortarV);
+        }
+    }
+
+    reset_render_state();
+    return true;
+}
+
+static SDL_Texture *scene_1_light_mask = NULL;
+bool SETUP_create_scene_1_light_mask(void) {
+    scene_1_light_mask = SDL_CreateTexture(
+        r,
+        SDL_PIXELFORMAT_RGBA8888,
+        SDL_TEXTUREACCESS_TARGET,
+        WINDOW_WIDTH,WINDOW_HEIGHT);
+    if(!scene_1_light_mask) {
+        fprintf(stderr, "%s failed to create texture %s", __func__, SDL_GetError());
+        return false;
+    }
+    SDL_SetTextureBlendMode(scene_1_light_mask, SDL_BLENDMODE_BLEND);
+    return true;
+}
+
+void draw_scene_1(void) {
+    SDL_SetRenderDrawColor(r, 0, 0, 0, 255);
+    SDL_RenderClear(r);
+
+    /* Draw background*/
+    {
+        SDL_SetRenderDrawColor(r, 0, 127, 0, 255);
+        SDL_FRect dest = (SDL_FRect) {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
+        SDL_RenderFillRectF(r, &dest);
+    }
+
+    /* Draw actor */
+    {
+        const SDL_FRect dest = (SDL_FRect) {
+            WINDOW_WIDTH*0.5 - scene_1_brick_wall_w*0.5,
+            WINDOW_HEIGHT*0.5 - scene_1_brick_wall_h*0.5,
+            scene_1_brick_wall_w,
+            scene_1_brick_wall_h
+        };
+        SDL_RenderCopyF(r, scene_1_brick_wall, NULL, &dest);
+    }
+
+    /* Build and draw light mask */
+    {
+        SDL_SetRenderTarget(r, scene_1_light_mask);
+        SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_NONE);
+        // add ambient darkness
+        SDL_SetRenderDrawColor(r, 0, 0, 0, 225);
+        SDL_FRect dest = (SDL_FRect) {
+            0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
+        };
+        SDL_RenderFillRectF(r, &dest);
+
+        // create light rays
+        dest = (SDL_FRect) {
+            fastrand()%(WINDOW_WIDTH-500), fastrand()%(WINDOW_HEIGHT-500), 500, 500,
+        };
+        SDL_SetRenderDrawColor(r, 0, 0, 0, 50);
+        SDL_RenderFillRectF(r, &dest);
+    }
+
+    // apply light mask
+    reset_render_state();
+    const SDL_FRect dest = (SDL_FRect) {
+        0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
+    };
+    SDL_RenderCopyF(r, scene_1_light_mask, NULL, &dest);
+
+
+    reset_render_state();
+    SDL_RenderPresent(r);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -78,19 +193,20 @@ void loop (bool *quit) {
     }
     const u32
         now = SDL_GetTicks(),
-        scene_count = 1,
-        scene_ttl = 1000;
-    const u32 scene_ix = (now / scene_ttl) % scene_count;
-    switch(scene_ix) {
+        scene_count = 2;
+    const u32 scene_ix = (now / SCENE_TTL) % scene_count;
+    switch(1) {
         case 0:
             draw_scene_0();
             break;
         case 1:
             draw_scene_1();
             break;
+        default:
+            fprintf(stderr, "unexpected scene_ix\n");
+            *quit = true;
+            return;
     }
-
-
 }
 
 bool setup(bool use_vsync) {
@@ -99,7 +215,8 @@ bool setup(bool use_vsync) {
     srand(time(NULL));
     fast_rand_state = rand();
 
-    // setup SDL
+    /* setup SDL
+    */
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
         return false;
@@ -125,13 +242,25 @@ bool setup(bool use_vsync) {
         return false;
     }
 
-    // setup other memory allocations and initial values
+    /* Setup other memory allocations and initial values.
+    */
+
+    // scene 0
     scene_0_points = malloc(scene_0_points_count * sizeof (SDL_FPoint));
     if(!scene_0_points) {
         fprintf(stderr, "failed to allocate scene_0_points\n");
         return false;
     }
-    scene_1_seed = rand();
+
+    // scene 1
+    if(!SETUP_create_scene_1_brick_wall()) {
+        fprintf(stderr, "SETUP_create_scene_1_brick_wall failed\n");
+        return false;
+    }
+    if(!SETUP_create_scene_1_light_mask()) {
+        fprintf(stderr, "SETUP_create_scene_1_light_mask failed\n");
+        return false;
+    }
 
     return true;
 }
@@ -181,6 +310,9 @@ int main(int argc, char **argv) {
 
     cleanup_and_exit:
     printf("preparing to exit\n");
+    free_and_null(scene_0_points);
+    free_texture_and_null(scene_1_brick_wall);
+    free_texture_and_null(scene_1_light_mask);
     if(w) {
         SDL_DestroyWindow(w);
         w = NULL;
@@ -189,7 +321,6 @@ int main(int argc, char **argv) {
         SDL_DestroyRenderer(r);
         r = NULL;
     }
-    free_and_null(scene_0_points);
 
     printf("Exiting! with code %d\n", exit_code);
     return exit_code;
