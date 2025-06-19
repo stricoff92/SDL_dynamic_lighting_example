@@ -3,16 +3,29 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include <SDL2/SDL.h>
 
 #include "utils.h"
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+///// globals & defines
 
 #define WINDOW_TITLE "SDL Lighting Test :3"
 #define free_and_null(ptr) if(ptr) { free(ptr); ptr = NULL; }
 
 static SDL_Window *w = NULL;
 static SDL_Renderer *r = NULL;
+
+static u32 fast_rand_state = 0;
+static inline u32 fastrand(void) {
+    fast_rand_state ^= fast_rand_state << 13;
+    fast_rand_state ^= fast_rand_state >> 17;
+    fast_rand_state ^= fast_rand_state << 5;
+    return fast_rand_state;
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////
 ///// scenes
@@ -23,14 +36,15 @@ static SDL_Renderer *r = NULL;
 
 static SDL_FPoint *scene_0_points = 0;
 static const u32 scene_0_points_count = 10000;
+static u32 scene_1_seed = 0;
 void draw_scene_0(void) {
     SDL_SetRenderDrawColor(r, 0, 0, 0, 255);
     SDL_RenderClear(r);
 
     for(u32 i=0; i<scene_0_points_count; i++) {
-        scene_0_points[i] = (SDL_FPoint) { rand() % WINDOW_WIDTH, rand() % WINDOW_HEIGHT };
+        scene_0_points[i] = (SDL_FPoint) { fastrand() % WINDOW_WIDTH, fastrand() % WINDOW_HEIGHT };
     }
-    SDL_SetRenderDrawColor(r, rand()%255, rand()%255, rand()%255, 255);
+    SDL_SetRenderDrawColor(r, fastrand()%255, fastrand()%255, fastrand()%255, 255);
     SDL_RenderDrawPointsF(r, scene_0_points, scene_0_points_count);
 
     SDL_RenderPresent(r);
@@ -82,6 +96,9 @@ void loop (bool *quit) {
 bool setup(bool use_vsync) {
     // returns true if setup is successful.
 
+    srand(time(NULL));
+    fast_rand_state = rand();
+
     // setup SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
@@ -108,12 +125,13 @@ bool setup(bool use_vsync) {
         return false;
     }
 
-    // setup other memory allocations
+    // setup other memory allocations and initial values
     scene_0_points = malloc(scene_0_points_count * sizeof (SDL_FPoint));
     if(!scene_0_points) {
         fprintf(stderr, "failed to allocate scene_0_points\n");
         return false;
     }
+    scene_1_seed = rand();
 
     return true;
 }
