@@ -7,10 +7,7 @@ An test program that emulates dynamic lighting using SDL2
 
 ## Installation
 
-```bash
-# debian
-apt install libsdl2-dev
-```
+download the latest release of SDL3 from https://github.com/libsdl-org/SDL
 
 ## Building
 
@@ -31,7 +28,9 @@ SCENE=2 ./dist/lighting
 
 ![](images/lighting_example.gif)
 
-## Seizure Warning
+<hr>
 
-This program displays flashing lights on the screen.
+![](images/example2.gif)
+
+
 
