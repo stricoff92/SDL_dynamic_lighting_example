@@ -29,6 +29,8 @@ USE_VSYNC=1 ./dist/lighting
 SCENE=2 ./dist/lighting
 ```
 
+![](images/lighting_example.gif)
+
 ## Seizure Warning
 
 This program displays flashing lights on the screen.

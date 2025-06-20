@@ -13,12 +13,9 @@
 #include "scene2.h"
 
 
-////////////////////////////////////////////////////////////////////////////////////////
-///// globals & defines
-
 #define WINDOW_TITLE "SDL Lighting Test :3"
-
 #define SCENE_TTL 1000
+
 static int target_scene_ix = -1;
 static const u32 total_scene_count = 3;
 
@@ -113,17 +110,20 @@ static inline char get_loading_char(const u32 now) {
     return working_chars[ix];
 }
 
+
+
+
 int main(int argc, char **argv) {
     int exit_code = 0;
     printf("Hello!\nPress ESC to close.\n");
 
+    // Parse env.
     const bool use_vsync = getenv("USE_VSYNC") != NULL;
     printf("use vsync: %u\n", use_vsync);
-
     {
         const char *target_scene_ix_data = getenv("SCENE");
         if(target_scene_ix_data) {
-            int target_scene_ix_val = atoi(target_scene_ix_data);
+            const int target_scene_ix_val = atoi(target_scene_ix_data);
             if(target_scene_ix_val < 0 || target_scene_ix_val > I32(total_scene_count)) {
                 fprintf(stderr, "SCENE env variable is invalid\n");
                 exit_code = 1;

@@ -72,6 +72,7 @@ void scene_1_cleanup(void) {
 }
 
 void scene_1_draw(void) {
+    const u32 now = SDL_GetTicks();
     SDL_SetRenderDrawColor(r, 0, 0, 0, 255);
     SDL_RenderClear(r);
 
@@ -106,7 +107,7 @@ void scene_1_draw(void) {
 
         // create light rays
         dest = (SDL_FRect) {
-            rand()%(WINDOW_WIDTH-500), rand()%(WINDOW_HEIGHT-500), 500, 500,
+            WINDOW_WIDTH*((now % 1000) / 1000.0), 0, 200, WINDOW_HEIGHT,
         };
         SDL_SetRenderDrawColor(r, 0, 0, 0, 50);
         SDL_RenderFillRectF(r, &dest);
