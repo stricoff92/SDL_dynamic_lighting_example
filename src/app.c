@@ -19,7 +19,8 @@
 #define WINDOW_TITLE "SDL Lighting Test :3"
 
 #define SCENE_TTL 1000
-
+static int target_scene_ix = -1;
+static const u32 total_scene_count = 3;
 
 static bool check_for_exit(void) {
     // return true if program should exit
@@ -39,9 +40,8 @@ static void loop (bool *quit) {
         return;
     }
     const u32
-        now = SDL_GetTicks(),
-        scene_count = 3;
-    const u32 scene_ix = (now / SCENE_TTL) % scene_count;
+        now = SDL_GetTicks();
+    const u32 scene_ix = target_scene_ix >= 0 ? U32(target_scene_ix) :(now / SCENE_TTL) % total_scene_count;
     switch(scene_ix) {
         case 0:
             scene_0_draw();
@@ -119,6 +119,20 @@ int main(int argc, char **argv) {
 
     const bool use_vsync = getenv("USE_VSYNC") != NULL;
     printf("use vsync: %u\n", use_vsync);
+
+    {
+        const char *target_scene_ix_data = getenv("SCENE");
+        if(target_scene_ix_data) {
+            int target_scene_ix_val = atoi(target_scene_ix_data);
+            if(target_scene_ix_val < 0 || target_scene_ix_val > I32(total_scene_count)) {
+                fprintf(stderr, "SCENE env variable is invalid\n");
+                exit_code = 1;
+                goto cleanup_and_exit;
+            } else {
+                target_scene_ix = target_scene_ix_val;
+            }
+        }
+    }
 
     if(!setup(use_vsync)) {
         fprintf(stderr, "setup failed!\n");

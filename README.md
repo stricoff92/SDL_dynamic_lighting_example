@@ -24,6 +24,9 @@ apt install libsdl2-dev
 
 # test with vsync
 USE_VSYNC=1 ./dist/lighting
+
+# test a single scene
+SCENE=2 ./dist/lighting
 ```
 
 ## Seizure Warning
