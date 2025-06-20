@@ -141,12 +141,6 @@ int main(int argc, char **argv) {
         goto cleanup_and_exit;
     }
 
-    for( int i = 0; i < SDL_GetNumRenderDrivers(); ++i )
-    {
-        SDL_RendererInfo rendererInfo = {};
-        SDL_GetRenderDriverInfo( i, &rendererInfo );
-        printf("renderer name %s\n", rendererInfo.name);
-    }
 
     bool quit = false;
     u32 fps_measurement_count = 0;
