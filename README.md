@@ -3,6 +3,7 @@
 
 An test program that emulates dynamic lighting using SDL2
 
+<img src="images/sdl.png" width="300">
 
 ## Installation
 
