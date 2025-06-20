@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include "common.h"
 #include "scene1.h"
@@ -23,7 +23,7 @@ static bool check_for_exit(void) {
     // return true if program should exit
     SDL_Event e;
     while (SDL_PollEvent(&e) != 0) {
-        if (e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)) {
+        if (e.type == SDL_EVENT_QUIT || (e.type == SDL_EVENT_KEY_DOWN && e.key.key == SDLK_ESCAPE)) {
             printf("received user input to exit...\n");
             return true;
         }
@@ -63,28 +63,20 @@ static bool setup(bool use_vsync) {
 
     /* setup SDL
     */
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
         return false;
     }
 
-    w = SDL_CreateWindow(
+    if(!SDL_CreateWindowAndRenderer(
         WINDOW_TITLE,
-        SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-        WINDOW_WIDTH, WINDOW_HEIGHT,
-        SDL_WINDOW_SHOWN);
-    if(!w) {
-        fprintf(stderr, "Window could not be created! SDL_Error: %s\n", SDL_GetError());
-        return false;
-    }
-
-    r = SDL_CreateRenderer(
-        w,
-        -1,
-        (SDL_RENDERER_ACCELERATED | (use_vsync ? SDL_RENDERER_PRESENTVSYNC : 0))
-    );
-    if(!r) {
-        fprintf(stderr, "Renderer could not be created! SDL_Error: %s\n", SDL_GetError());
+        WINDOW_WIDTH,
+        WINDOW_HEIGHT,
+        0,
+        &w,
+        &r
+    )){
+        fprintf(stderr, "SDL_CreateWindowAndRenderer failed %s\n", SDL_GetError());
         return false;
     }
 
@@ -118,6 +110,21 @@ int main(int argc, char **argv) {
     int exit_code = 0;
     printf("Hello!\nPress ESC to close.\n");
 
+    {
+        const int compiled = SDL_VERSION;  /* hardcoded number from SDL headers */
+        const int linked = SDL_GetVersion();  /* reported by linked SDL library */
+
+        SDL_Log("We compiled against SDL version %d.%d.%d ...\n",
+                SDL_VERSIONNUM_MAJOR(compiled),
+                SDL_VERSIONNUM_MINOR(compiled),
+                SDL_VERSIONNUM_MICRO(compiled));
+
+        SDL_Log("But we are linking against SDL version %d.%d.%d.\n",
+                SDL_VERSIONNUM_MAJOR(linked),
+                SDL_VERSIONNUM_MINOR(linked),
+                SDL_VERSIONNUM_MICRO(linked));
+    }
+
     // Parse env.
     const bool use_vsync = getenv("USE_VSYNC") != NULL;
     printf("use vsync: %u\n", use_vsync);
@@ -141,11 +148,11 @@ int main(int argc, char **argv) {
         goto cleanup_and_exit;
     }
 
-    for( int i = 0; i < SDL_GetNumRenderDrivers(); ++i )
-    {
-        SDL_RendererInfo rendererInfo = {};
-        SDL_GetRenderDriverInfo( i, &rendererInfo );
-        printf("renderer name %s\n", rendererInfo.name);
+    SDL_SetRenderVSync(r, use_vsync ? SDL_RENDERER_VSYNC_ADAPTIVE : SDL_RENDERER_VSYNC_DISABLED);
+
+    SDL_Log("Available renderer drivers:");
+    for (int i = 0; i < SDL_GetNumRenderDrivers(); i++) {
+        SDL_Log("%d. %s", i + 1, SDL_GetRenderDriver(i));
     }
 
     bool quit = false;

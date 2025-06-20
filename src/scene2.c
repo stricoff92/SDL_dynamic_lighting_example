@@ -28,12 +28,12 @@ static bool create_brick_wall(void) {
             int offsetX = (y / 40) % 2 == 0 ? 0 : 30;
             // Brick color
             SDL_SetRenderDrawColor(r, 120 + (x + y) % 40, 80 + (x * y) % 30, 60, 255);
-            SDL_Rect brick = {x + offsetX, y, 55, 35};
+            SDL_FRect brick = {x + offsetX, y, 55, 35};
             SDL_RenderFillRect(r, &brick);
             // Mortar lines
             SDL_SetRenderDrawColor(r, 200, 200, 200, 255);
-            SDL_Rect mortarH = {x + offsetX - 2, y + 35, 59, 5};
-            SDL_Rect mortarV = {x + offsetX + 55, y, 5, 40};
+            SDL_FRect mortarH = {x + offsetX - 2, y + 35, 59, 5};
+            SDL_FRect mortarV = {x + offsetX + 55, y, 5, 40};
             SDL_RenderFillRect(r, &mortarH);
             SDL_RenderFillRect(r, &mortarV);
         }
@@ -58,10 +58,7 @@ static bool create_light_mask(void) {
     return true;
 }
 
-static inline void load_verts(SDL_Vertex *verts, SDL_FPoint *points, SDL_Color center, SDL_Color edge) {
-    SDL_Color
-        blend_center_c = {255, 0, 0, 185},
-        edge_c = {0};
+static inline void load_verts(SDL_Vertex *verts, SDL_FPoint *points, SDL_FColor center, SDL_FColor edge) {
     for(u32 i=0; i < 6; i++) {
         verts[i] = (SDL_Vertex) {
             points[i],
@@ -97,7 +94,7 @@ void scene_2_draw(void) {
     {
         SDL_SetRenderDrawColor(r, 0, 127, 0, 255);
         SDL_FRect dest = (SDL_FRect) {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
-        SDL_RenderFillRectF(r, &dest);
+        SDL_RenderFillRect(r, &dest);
     }
 
     /* Draw actors */
@@ -109,7 +106,7 @@ void scene_2_draw(void) {
             brick_wall_w,
             brick_wall_h
         };
-        SDL_RenderCopyF(r, brick_wall, NULL, &dest);
+        SDL_RenderTexture(r, brick_wall, NULL, &dest);
     }
     u32 now = SDL_GetTicks();
 
@@ -173,36 +170,36 @@ void scene_2_draw(void) {
             bulb_side_len
         };
         SDL_SetRenderDrawColor(r, 255, 0, 0, 255);
-        SDL_RenderFillRectF(r, &bulb_dest);
+        SDL_RenderFillRect(r, &bulb_dest);
 
         // Red light
         {
-            const SDL_Color
-                blend_center_c = {255, 0, 0, 185};
+            const SDL_FColor
+                blend_center_c = {255/255.0, 0, 0, 185/255.0};
             SDL_Vertex light_actor_blend_verts[6];
-            load_verts(light_actor_blend_verts, red_light_ray_points, blend_center_c, (SDL_Color) {0});
+            load_verts(light_actor_blend_verts, red_light_ray_points, blend_center_c, (SDL_FColor) {0});
             SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
             SDL_RenderGeometry(r, NULL, light_actor_blend_verts, 6, indicies, 12);
-            SDL_Color
-                mul_center_c = {255, 127, 127, 0};
+            SDL_FColor
+                mul_center_c = {255/255.0, 127/255.0, 127/255.0, 0};
             SDL_Vertex light_actor_mul_verts[6];
-            load_verts(light_actor_mul_verts, red_light_ray_points, mul_center_c, (SDL_Color) {0});
+            load_verts(light_actor_mul_verts, red_light_ray_points, mul_center_c, (SDL_FColor) {0});
             SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_MUL);
             SDL_RenderGeometry(r, NULL, light_actor_mul_verts, 6, indicies, 12);
         }
 
         // blue light
         {
-            const SDL_Color
-                blend_center_c = {0, 0, 160, 185};
+            const SDL_FColor
+                blend_center_c = {0, 0, 160/255.0, 185/255.0};
             SDL_Vertex light_actor_blend_verts[6];
-            load_verts(light_actor_blend_verts, blue_light_ray_points, blend_center_c, (SDL_Color) {0});
+            load_verts(light_actor_blend_verts, blue_light_ray_points, blend_center_c, (SDL_FColor) {0});
             SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
             SDL_RenderGeometry(r, NULL, light_actor_blend_verts, 6, indicies, 12);
-            SDL_Color
-                mul_center_c = {255, 127, 127, 0};
+            SDL_FColor
+                mul_center_c = {255/255.0, 127/255.0, 127/255.0, 0};
             SDL_Vertex light_actor_mul_verts[6];
-            load_verts(light_actor_mul_verts, blue_light_ray_points, mul_center_c, (SDL_Color) {0});
+            load_verts(light_actor_mul_verts, blue_light_ray_points, mul_center_c, (SDL_FColor) {0});
             SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_MUL);
             SDL_RenderGeometry(r, NULL, light_actor_mul_verts, 6, indicies, 12);
         }
@@ -218,20 +215,20 @@ void scene_2_draw(void) {
     SDL_FRect dest = (SDL_FRect) {
         0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
     };
-    SDL_RenderFillRectF(r, &dest);
+    SDL_RenderFillRect(r, &dest);
     { // red light
         // create mask light rays
-        SDL_Color
+        SDL_FColor
             center_c = {0, 0, 0, 0},
-            edge_c = {0, 0, 0, ambient_darkness_alpha};
+            edge_c = {0, 0, 0, ambient_darkness_alpha/255.0};
         SDL_Vertex light_mask_verts[6];
         load_verts(light_mask_verts, red_light_ray_points, center_c, edge_c);
         SDL_RenderGeometry(r, NULL, light_mask_verts, 6, indicies, 12);
     }
     { // blue light
-        SDL_Color
+        SDL_FColor
             center_c = {0, 0, 0, 0},
-            edge_c = {0, 0, 0, ambient_darkness_alpha};
+            edge_c = {0, 0, 0, ambient_darkness_alpha/255.0};
         SDL_Vertex light_mask_verts[6];
         load_verts(light_mask_verts, blue_light_ray_points, center_c, edge_c);
         SDL_RenderGeometry(r, NULL, light_mask_verts, 6, indicies, 12);
@@ -242,7 +239,7 @@ void scene_2_draw(void) {
     // apply light mask
     reset_render_state();
     SDL_SetTextureBlendMode(light_mask, SDL_BLENDMODE_MUL);
-    SDL_RenderCopyF(r, light_mask, NULL, NULL);
+    SDL_RenderTexture(r, light_mask, NULL, NULL);
 
 
     reset_render_state();

@@ -28,12 +28,12 @@ static bool create_brick_wall(void) {
             int offsetX = (y / 40) % 2 == 0 ? 0 : 30;
             // Brick color
             SDL_SetRenderDrawColor(r, 120 + (x + y) % 40, 80 + (x * y) % 30, 60, 255);
-            SDL_Rect brick = {x + offsetX, y, 55, 35};
+            SDL_FRect brick = {x + offsetX, y, 55, 35};
             SDL_RenderFillRect(r, &brick);
             // Mortar lines
             SDL_SetRenderDrawColor(r, 200, 200, 200, 255);
-            SDL_Rect mortarH = {x + offsetX - 2, y + 35, 59, 5};
-            SDL_Rect mortarV = {x + offsetX + 55, y, 5, 40};
+            SDL_FRect mortarH = {x + offsetX - 2, y + 35, 59, 5};
+            SDL_FRect mortarV = {x + offsetX + 55, y, 5, 40};
             SDL_RenderFillRect(r, &mortarH);
             SDL_RenderFillRect(r, &mortarV);
         }
@@ -80,7 +80,7 @@ void scene_1_draw(void) {
     {
         SDL_SetRenderDrawColor(r, 0, 127, 0, 255);
         SDL_FRect dest = (SDL_FRect) {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
-        SDL_RenderFillRectF(r, &dest);
+        SDL_RenderFillRect(r, &dest);
     }
 
     /* Draw actor */
@@ -91,7 +91,7 @@ void scene_1_draw(void) {
             brick_wall_w,
             brick_wall_h
         };
-        SDL_RenderCopyF(r, brick_wall, NULL, &dest);
+        SDL_RenderTexture(r, brick_wall, NULL, &dest);
     }
 
     /* Build and draw light mask */
@@ -103,14 +103,14 @@ void scene_1_draw(void) {
         SDL_FRect dest = (SDL_FRect) {
             0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
         };
-        SDL_RenderFillRectF(r, &dest);
+        SDL_RenderFillRect(r, &dest);
 
         // create light rays
         dest = (SDL_FRect) {
             WINDOW_WIDTH*((now % 1000) / 1000.0), 0, 200, WINDOW_HEIGHT,
         };
         SDL_SetRenderDrawColor(r, 0, 0, 0, 50);
-        SDL_RenderFillRectF(r, &dest);
+        SDL_RenderFillRect(r, &dest);
     }
 
     // apply light mask
@@ -118,7 +118,7 @@ void scene_1_draw(void) {
     const SDL_FRect dest = (SDL_FRect) {
         0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
     };
-    SDL_RenderCopyF(r, light_mask, NULL, &dest);
+    SDL_RenderTexture(r, light_mask, NULL, &dest);
 
 
     reset_render_state();

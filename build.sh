@@ -15,11 +15,11 @@ OUT_EXECUTABLE="lighting"
 for f in src/*.c; do
     froot=$(echo $f | awk -F '/' '{print $2}' | awk -F '.' '{print $1}')
     printf "  building $froot.o ..."
-    $CC $CFLAGS -c src/$froot.c -o build/$froot.o -lSDL2 -lm
+    $CC $CFLAGS -c src/$froot.c -o build/$froot.o -L/usr/local/lib/ -lSDL3 -lm
     printf " done\n"
 done
 
 printf "  building binary... "
-$CC $CFLAGS build/*.o -o dist/$OUT_EXECUTABLE $LIB_ARGS -lSDL2 -lm
+$CC $CFLAGS build/*.o -o dist/$OUT_EXECUTABLE $LIB_ARGS -L/usr/local/lib/ -lSDL3 -lm
 
 printf "done!\n"

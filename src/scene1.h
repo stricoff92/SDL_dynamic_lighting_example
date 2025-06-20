@@ -2,7 +2,9 @@
 #ifndef lighting_example_scene1_H
 #define lighting_example_scene1_H
 
-#include "stdbool.h"
+#include <stdio.h>
+#include <stdbool.h>
+
 #include "common.h"
 
 

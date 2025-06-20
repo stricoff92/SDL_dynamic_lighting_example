@@ -4,6 +4,7 @@
 #define lighting_example_scene3_H
 
 #include <stdbool.h>
+#include <stdio.h>
 
 #include "common.h"
 

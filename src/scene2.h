@@ -2,6 +2,7 @@
 #define lighting_example_scene2_H
 
 #include <stdbool.h>
+#include <stdio.h>
 
 #include "common.h"
 

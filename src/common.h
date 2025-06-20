@@ -2,9 +2,10 @@
 #ifndef lighting_example_common_H
 #define lighting_example_common_H
 
+#include <math.h>
 #include <stdint.h>
 
-#include "SDL2/SDL.h"
+#include "SDL3/SDL.h"
 
 
 typedef uint8_t     u8;
