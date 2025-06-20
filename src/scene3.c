@@ -85,12 +85,12 @@ bool scene_3_setup(void) {
     }
 
     light_mask_blend = SDL_ComposeCustomBlendMode(
-                SDL_BLENDFACTOR_SRC_ALPHA,           // srcColorFactor
-                SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, // dstColorFactor
-                SDL_BLENDOPERATION_ADD,              // colorOperation
-                SDL_BLENDFACTOR_ONE,                 // srcAlphaFactor
-                SDL_BLENDFACTOR_ONE,                 // dstAlphaFactor
-                SDL_BLENDOPERATION_SUBTRACT          // alphaOperation: dst - src
+    SDL_BLENDFACTOR_SRC_ALPHA,      // Source color factor
+    SDL_BLENDFACTOR_DST_ALPHA,      // Dest color factor
+    SDL_BLENDOPERATION_MINIMUM,     // Color operation (min)
+    SDL_BLENDFACTOR_ONE,            // Source alpha factor
+    SDL_BLENDFACTOR_ONE,            // Dest alpha factor
+    SDL_BLENDOPERATION_MINIMUM      // Alpha operation (min)
     );
 
     if(light_mask_blend == SDL_BLENDMODE_INVALID) {
@@ -264,7 +264,7 @@ void scene_3_draw(void) {
             SDL_RenderFillRectF(r, &dest);
         }
 
-        SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_NONE);
+        SDL_SetRenderDrawBlendMode(r, light_mask_blend);
         { // left light
             SDL_Color
                 center_c = {0, 0, 0, 0},
