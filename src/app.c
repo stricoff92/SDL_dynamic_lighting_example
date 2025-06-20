@@ -8,7 +8,6 @@
 #include <SDL2/SDL.h>
 
 #include "common.h"
-#include "scene0.h"
 #include "scene1.h"
 #include "scene2.h"
 
@@ -17,7 +16,7 @@
 #define SCENE_TTL 1000
 
 static int target_scene_ix = -1;
-static const u32 total_scene_count = 3;
+static const u32 total_scene_count = 2;
 
 static bool check_for_exit(void) {
     // return true if program should exit
@@ -41,12 +40,9 @@ static void loop(bool *quit) {
     const u32 scene_ix = target_scene_ix >= 0 ? U32(target_scene_ix) :(now / SCENE_TTL) % total_scene_count;
     switch(scene_ix) {
         case 0:
-            scene_0_draw();
-            break;
-        case 1:
             scene_1_draw();
             break;
-        case 2:
+        case 1:
             scene_2_draw();
             break;
         default:
@@ -88,10 +84,6 @@ static bool setup(bool use_vsync) {
         return false;
     }
 
-    if(!scene_0_setup()) {
-        fprintf(stderr, "scene_0_setup failed\n");
-        return false;
-    }
     if(!scene_1_setup()) {
         fprintf(stderr, "scene_1_setup failed\n");
         return false;
@@ -166,7 +158,6 @@ int main(int argc, char **argv) {
 
     cleanup_and_exit:
     printf("preparing to exit\n");
-    scene_0_cleanup();
     scene_1_cleanup();
     scene_2_cleanup();
 
