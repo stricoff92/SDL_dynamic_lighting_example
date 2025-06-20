@@ -12,8 +12,6 @@ CFLAGS="-fstrict-aliasing -Wall -Wextra -Wfloat-equal -Wno-unused-variable -peda
 CC="gcc"
 OUT_EXECUTABLE="lighting"
 
-# printf "building... "
-# gcc $CFLAGS -o dist/app src/app.c -lSDL2 -lm
 for f in src/*.c; do
     froot=$(echo $f | awk -F '/' '{print $2}' | awk -F '.' '{print $1}')
     printf "  building $froot.o ..."
