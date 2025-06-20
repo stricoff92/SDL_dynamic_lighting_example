@@ -73,9 +73,11 @@ static inline void load_verts(SDL_Vertex *verts, SDL_FPoint *points, SDL_Color c
 
 bool scene_2_setup(void) {
     if(!create_brick_wall()) {
+        fprintf(stderr, "create_brick_wall failed\n");
         return false;
     }
     if(!create_light_mask()){
+        fprintf(stderr, "create_light_mask failed\n");
         return false;
     }
     return true;
