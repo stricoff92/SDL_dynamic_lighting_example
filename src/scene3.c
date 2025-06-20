@@ -84,12 +84,21 @@ bool scene_3_setup(void) {
     }
 
     light_mask_blend = SDL_ComposeCustomBlendMode(
+<<<<<<< HEAD
         SDL_BLENDFACTOR_SRC_ALPHA,      // Source color factor
         SDL_BLENDFACTOR_DST_ALPHA,      // Dest color factor
         SDL_BLENDOPERATION_MINIMUM,     // Color operation (min)
         SDL_BLENDFACTOR_ONE,            // Source alpha factor
         SDL_BLENDFACTOR_ONE,            // Dest alpha factor
         SDL_BLENDOPERATION_MINIMUM      // Alpha operation (min)
+=======
+    SDL_BLENDFACTOR_SRC_ALPHA,      // Source color factor
+    SDL_BLENDFACTOR_DST_ALPHA,      // Dest color factor
+    SDL_BLENDOPERATION_MINIMUM,     // Color operation (min)
+    SDL_BLENDFACTOR_ONE,            // Source alpha factor
+    SDL_BLENDFACTOR_ONE,            // Dest alpha factor
+    SDL_BLENDOPERATION_MINIMUM      // Alpha operation (min)
+>>>>>>> main
     );
 
     if(light_mask_blend == SDL_BLENDMODE_INVALID) {
