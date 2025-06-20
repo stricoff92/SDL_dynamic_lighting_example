@@ -1,7 +1,7 @@
 # SDL Dynamic Lighting Example
 
 
-An test program that emulates dynamic lighting using SDL2
+An test program that emulates dynamic lighting using SDL3
 
 <img src="images/sdl.png" width="300">
 
