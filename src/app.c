@@ -10,13 +10,14 @@
 #include "common.h"
 #include "scene1.h"
 #include "scene2.h"
+#include "scene3.h"
 
 
 #define WINDOW_TITLE "SDL Lighting Test :3"
-#define SCENE_TTL 1000
+#define SCENE_TTL 2000
 
 static int target_scene_ix = -1;
-static const u32 total_scene_count = 2;
+static const u32 total_scene_count = 3;
 
 static bool check_for_exit(void) {
     // return true if program should exit
@@ -44,6 +45,9 @@ static void loop(bool *quit) {
             break;
         case 1:
             scene_2_draw();
+            break;
+        case 2:
+            scene_3_draw();
             break;
         default:
             fprintf(stderr, "unexpected scene_ix\n");
@@ -92,6 +96,11 @@ static bool setup(bool use_vsync) {
         fprintf(stderr, "scene_2_setup failed\n");
         return false;
     }
+    if(!scene_3_setup()) {
+        fprintf(stderr, "scene_2_setup failed\n");
+        return false;
+    }
+
 
     return true;
 }
@@ -116,7 +125,7 @@ int main(int argc, char **argv) {
         const char *target_scene_ix_data = getenv("SCENE");
         if(target_scene_ix_data) {
             const int target_scene_ix_val = atoi(target_scene_ix_data);
-            if(target_scene_ix_val < 0 || target_scene_ix_val > I32(total_scene_count)) {
+            if(target_scene_ix_val < 0 || target_scene_ix_val >= I32(total_scene_count)) {
                 fprintf(stderr, "SCENE env variable is invalid\n");
                 exit_code = 1;
                 goto cleanup_and_exit;
@@ -130,6 +139,13 @@ int main(int argc, char **argv) {
         fprintf(stderr, "setup failed!\n");
         exit_code = 1;
         goto cleanup_and_exit;
+    }
+
+    for( int i = 0; i < SDL_GetNumRenderDrivers(); ++i )
+    {
+        SDL_RendererInfo rendererInfo = {};
+        SDL_GetRenderDriverInfo( i, &rendererInfo );
+        printf("renderer name %s\n", rendererInfo.name);
     }
 
     bool quit = false;
@@ -160,6 +176,7 @@ int main(int argc, char **argv) {
     printf("preparing to exit\n");
     scene_1_cleanup();
     scene_2_cleanup();
+    scene_3_cleanup();
 
     if(w) {
         SDL_DestroyWindow(w);
