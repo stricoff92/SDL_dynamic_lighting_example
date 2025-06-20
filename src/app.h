@@ -1,6 +1,6 @@
 
-#ifndef SDL_dynamic_lighting_examle_utils
-#define SDL_dynamic_lighting_examle_utils
+#ifndef SDL_dynamic_lighting_examle_app
+#define SDL_dynamic_lighting_examle_app
 
 #include <stdint.h>
 
@@ -29,5 +29,10 @@ typedef double      f64;
 
 #define WINDOW_WIDTH 1920
 #define WINDOW_HEIGHT 1080
+
+
+#define PI_OVER_180 0.017453292519943295
+#define angle_degrees_to_rads(a) \
+    (-(a) * PI_OVER_180)
 
 #endif
