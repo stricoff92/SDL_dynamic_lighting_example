@@ -20,7 +20,7 @@ apt install libsdl2-dev
 
 ## running
 ```bash
-./dist/app
+./dist/lighting
 
 # test with vsync
 USE_VSYNC=1 ./dist/lighting
