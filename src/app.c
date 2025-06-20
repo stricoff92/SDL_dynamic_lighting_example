@@ -34,7 +34,7 @@ static bool check_for_exit(void) {
     return false;
 }
 
-static void loop (bool *quit) {
+static void loop(bool *quit) {
     if(check_for_exit()) {
         *quit = true;
         return;
