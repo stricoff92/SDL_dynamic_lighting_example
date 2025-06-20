@@ -15,12 +15,7 @@ apt install libsdl2-dev
 ## Building
 
 ```bash
-mkdir -p dist && gcc -o dist/app src/app.c -lSDL2 -lm
-
-# or use build script
-
 ./build.sh
-
 ```
 
 ## running
@@ -28,7 +23,7 @@ mkdir -p dist && gcc -o dist/app src/app.c -lSDL2 -lm
 ./dist/app
 
 # test with vsync
-USE_VSYNC=1 ./dist/app
+USE_VSYNC=1 ./dist/lighting
 ```
 
 ## Seizure Warning
