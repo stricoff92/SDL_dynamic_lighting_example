@@ -31,7 +31,7 @@ SCENE=2 ./dist/lighting
 
 ![](images/lighting_example.gif)
 
-## Seizure Warning
+![](images/example3.gif)
 
-This program displays flashing lights on the screen.
+
 

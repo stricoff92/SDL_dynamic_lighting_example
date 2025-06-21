@@ -43,6 +43,10 @@ extern SDL_Renderer *r;
 #define free_and_null(ptr) if(ptr) { free(ptr); ptr = NULL; }
 #define free_texture_and_null(ptr) if(ptr) { SDL_DestroyTexture(ptr); ptr = NULL; }
 
+#define pow2(v) ((v) * (v))
+#define dist_sq(x1, y1, x2, y2) (pow2(x2 - x1) + pow2(y2 - y1))
+#define easingSmoothStart2(t) ((t) * (t))
+#define easingSmoothEnd2(t) (1 - (1 - (t)) * (1 - (t)))
 
 SDL_FPoint rotate_point(
     SDL_FPoint origin,
