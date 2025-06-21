@@ -264,7 +264,7 @@ void scene_3_draw(void) {
             SDL_RenderFillRectF(r, &dest);
         }
 
-        SDL_SetRenderDrawBlendMode(r, light_mask_blend);
+        SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_NONE);
         { // left light
             SDL_Color
                 center_c = {0, 0, 0, 0},
@@ -282,9 +282,7 @@ void scene_3_draw(void) {
             SDL_RenderGeometry(r, NULL, light_mask_verts, 6, indicies, 12);
         }
 
-
         // apply light mask to sceen
-        SDL_SetRenderTarget(r, NULL);
         reset_render_state();
         SDL_SetTextureBlendMode(light_mask, SDL_BLENDMODE_BLEND);
         SDL_RenderCopyF(r, light_mask, NULL, NULL);
