@@ -29,9 +29,5 @@ USE_VSYNC=1 ./dist/lighting
 SCENE=2 ./dist/lighting
 ```
 
-![](images/lighting_example.gif)
-
-![](images/example3.gif)
-
 
 

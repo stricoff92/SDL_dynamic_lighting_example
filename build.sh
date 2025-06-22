@@ -8,7 +8,7 @@ rm dist/* 2> /dev/null
 rm build/* 2> /dev/null
 
 OLEVEL="0"
-CFLAGS="-fstrict-aliasing -Wall -Wextra -Wfloat-equal -Wno-unused-variable -pedantic -Wno-unused-parameter -g -O$OLEVEL"
+CFLAGS="-fstrict-aliasing -Wall -Wextra -Wfloat-equal -Wno-unused-variable -pedantic -Wno-unused-parameter -g -O0"
 CC="gcc"
 OUT_EXECUTABLE="lighting"
 

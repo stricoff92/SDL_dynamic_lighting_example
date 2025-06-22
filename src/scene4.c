@@ -10,6 +10,11 @@ static const int
 
 static SDL_BlendMode light_mask_blend;
 
+const int indicies[] = {
+    0, 1, 2,
+    0, 2, 3,
+};
+
 static bool create_brick_wall(void) {
     // Return true if successful.
     brick_wall = SDL_CreateTexture(
@@ -135,6 +140,8 @@ static inline u8 get_ambient_light_at_position(
     const light_source_t *lights,
     const u32 lights_count
 ) {
+    /* caller guarantees that ambient_alpha >= all light sources' min_alpha
+    */
     if(lights_count == 0)
         return ambient_alpha;
 
@@ -149,7 +156,8 @@ static inline u8 get_ambient_light_at_position(
             continue;
 
         // 0 = brightest, 1 = ambient darkness
-        const f32 perc_from_edge =  easingSmoothEnd2((ds) / (lights[i].radius_squared));
+        const f32 ndist = (ds) / (lights[i].radius_squared);
+        const f32 perc_from_edge =  easingSmoothEnd2(ndist);
         const f32 alpha_range = (ambient_alpha - lights[i].min_alpha);
         const u8 ls_a = lights[i].min_alpha + U8(alpha_range * perc_from_edge);
 
@@ -201,7 +209,6 @@ void scene_4_draw(void) {
     const u8 amax = 220, amin = 5;
     const u8 arange = amax - amin;
     u8 lmina, rmina;
-    const u32 rsmin = 50, rsmax = 700;
     if(cycle_nf < 0.5) {
         const f32 p = cycle_nf * 2;
         const f32 pss = easingSmoothStart2(p);
@@ -219,7 +226,7 @@ void scene_4_draw(void) {
     const light_source_t light_sources[] = {
         (light_source_t) {
             .position=(SDL_FPoint){ ls_left_x, ls_y },
-            .radius_squared=pow2(400),
+            .radius_squared=pow2(500),
             .min_alpha = lmina,
         },
         (light_source_t) {
@@ -272,18 +279,61 @@ void scene_4_draw(void) {
     }
     // add light to mask
     u32 rects_written = 0;
-    const f32 light_mask_grid_size = 16;
-    for(f32 x=0; x < WINDOW_WIDTH; x += light_mask_grid_size) {
-        for(f32 y=0; y < WINDOW_WIDTH; y += light_mask_grid_size) {
-            const u8 a = get_ambient_light_at_position(
-                x,
-                y,
-                ambient_darkness_alpha,
-                light_sources,
-                2);
-            const SDL_FRect rect = (SDL_FRect) {x, y, light_mask_grid_size, light_mask_grid_size};
-            SDL_SetRenderDrawColor(r, 0, 0, 0, a);
-            SDL_RenderFillRectF(r, &rect);
+    const f32 grid_len = 64;
+    for(f32 x=0; x < WINDOW_WIDTH; x += grid_len) {
+        for(f32 y=0; y < WINDOW_WIDTH; y += grid_len) {
+
+            { // method a
+                // const u8 a = get_ambient_light_at_position(
+                //     x,
+                //     y,
+                //     ambient_darkness_alpha,
+                //     light_sources,
+                //     2);
+                // const SDL_FRect rect = (SDL_FRect) {x, y, grid_len, grid_len};
+                // SDL_SetRenderDrawColor(r, 0, 0, 0, a);
+                // SDL_RenderFillRectF(r, &rect);
+            }
+            { //method b
+                const u8 a0 = get_ambient_light_at_position( // top left
+                    x,
+                    y,
+                    ambient_darkness_alpha,
+                    light_sources,
+                    2);
+                const u8 a1 = get_ambient_light_at_position( // top right
+                    x + grid_len,
+                    y,
+                    ambient_darkness_alpha,
+                    light_sources,
+                    2);
+                const u8 a2 = get_ambient_light_at_position( // bottom right
+                    x + grid_len,
+                    y + grid_len,
+                    ambient_darkness_alpha,
+                    light_sources,
+                    2);
+                const u8 a3 = get_ambient_light_at_position( // bottom left
+                    x,
+                    y + grid_len,
+                    ambient_darkness_alpha,
+                    light_sources,
+                    2);
+                if(a0 == a1 && a0 == a2 && a0 == a3) {
+                    const SDL_FRect rect = (SDL_FRect) {x, y, grid_len, grid_len};
+                    SDL_SetRenderDrawColor(r, 0, 0, 0, a0);
+                    SDL_RenderFillRectF(r, &rect);
+                }
+                else {
+                    const SDL_Vertex verts[] = {
+                        {(SDL_FPoint){x, y}, (SDL_Color){0,0,0,a0},(SDL_FPoint){0}}, // top left
+                        {(SDL_FPoint){x+grid_len, y},(SDL_Color){0,0,0,a1},(SDL_FPoint){0}}, // top right
+                        {(SDL_FPoint){x+grid_len, y+grid_len},(SDL_Color){0,0,0,a2},(SDL_FPoint){0}}, // bottom right
+                        {(SDL_FPoint){x, y+grid_len},(SDL_Color){0,0,0,a3},(SDL_FPoint){0}}, // bottom right
+                    };
+                    SDL_RenderGeometry(r, NULL, verts, 4, indicies, 6);
+                }
+            }
 
         }
     }
