@@ -17,7 +17,7 @@ typedef struct {
     SDL_FPoint position;
     f32 radius_squared;
     u8 min_alpha; // (max liminocity)
-} light_source_t;
+} DLE_LightSource;
 
 #endif
 

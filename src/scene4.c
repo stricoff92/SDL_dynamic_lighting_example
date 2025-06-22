@@ -137,7 +137,7 @@ static inline u8 get_ambient_light_at_position(
     const f32 x,
     const f32 y,
     const u8 ambient_alpha,
-    const light_source_t *lights,
+    const DLE_LightSource *lights,
     const u32 lights_count
 ) {
     /* caller guarantees that ambient_alpha >= all light sources' min_alpha
@@ -223,13 +223,13 @@ void scene_4_draw(void) {
         lmina = amin + (arange*pss);
     }
 
-    const light_source_t light_sources[] = {
-        (light_source_t) {
+    const DLE_LightSource light_sources[] = {
+        (DLE_LightSource) {
             .position=(SDL_FPoint){ ls_left_x, ls_y },
             .radius_squared=pow2(500),
             .min_alpha = lmina,
         },
-        (light_source_t) {
+        (DLE_LightSource) {
             .position=(SDL_FPoint){ ls_right_x, ls_y },
             .radius_squared=pow2(400),
             .min_alpha = rmina,
